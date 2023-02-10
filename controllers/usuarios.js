@@ -2,20 +2,41 @@ const { response } = require('express');
 const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
-const { generarJWT } = require('../helpers/jwt');
 
 
-const getUsuarios = async(req, res) => {
+const getUsuarios = async (req, res) => {
+     
+    const desde = Number(req.query.desde) || 0;
 
-    const usuarios = await Usuario.find({}, 'nombre email role google');
+
+    console.log(desde);
+
+
+    // const usuarios = await Usuario
+    //                             .find( {}, 'nombre email role google')
+    //                             .skip(desde)
+    //                             .limit(5);
+
+    // const total = await Usuario.count();
+
+   const [usuarios, total] = await Promise.all([
+
+        Usuario
+            .find( {}, 'nombre email role google img')
+            .skip(desde)
+            .limit(5),
+
+        Usuario.countDocuments()
+    ]);
 
     res.json({
         ok: true,
         usuarios,
-        uid: req.uid
+        total
     });
 
 }
+
 
 const crearUsuario = async(req, res = response) => {
 
@@ -64,7 +85,6 @@ const crearUsuario = async(req, res = response) => {
 
 }
 
-
 const actualizarUsuario = async (req, res = response) => {
 
     // TODO: Validar token y comprobar si es el usuario correcto
@@ -111,18 +131,16 @@ const actualizarUsuario = async (req, res = response) => {
         res.status(500).json({
             ok: false,
             msg: 'Error inesperado'
-        })
+        });
     }
 
 }
 
-
-const borrarUsuario = async(req, res = response ) => {
+const borrarUsuario = async (req, res = response) => {
 
     const uid = req.params.id;
 
-    try {
-
+    try{
         const usuarioDB = await Usuario.findById( uid );
 
         if ( !usuarioDB ) {
@@ -134,30 +152,22 @@ const borrarUsuario = async(req, res = response ) => {
 
         await Usuario.findByIdAndDelete( uid );
 
-        
         res.json({
             ok: true,
             msg: 'Usuario eliminado'
         });
-
-    } catch (error) {
-        
+    } catch(error){
         console.log(error);
-        res.status(500).json({
+        res.status(500).json ({
             ok: false,
-            msg: 'Hable con el administrador'
+            msg: 'Error inesperado, hable con el administrador',
         });
-
     }
-
-
 }
-
-
 
 module.exports = {
     getUsuarios,
     crearUsuario,
     actualizarUsuario,
-    borrarUsuario
+    borrarUsuario,
 }
