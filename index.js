@@ -1,24 +1,27 @@
-// import express from 'express'; //asi se haria en js
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 
-const { dbConnection } = require('./database/config')
+const { dbConnection } = require('./database/config');
 
-//Crear el servidor express
+// Crear el servidor de express
 const app = express();
 
-//Configurar CORS
-app.use(cors());
+// Configurar CORS
+app.use( cors() );
+
+// Carpeta pública
+app.use( express.static('public') );
 
 // Lectura y parseo del body
 app.use( express.json() );
 
-//Base de datos
+// Base de datos
 dbConnection();
 
-//Rutas
+
+// Rutas
 app.use( '/api/usuarios', require('./routes/usuarios') );
 app.use( '/api/hospitales', require('./routes/hospitales') );
 app.use( '/api/medicos', require('./routes/medicos') );
@@ -28,7 +31,7 @@ app.use( '/api/upload', require('./routes/uploads') );
 
 
 
-
-app.listen(process.env.Port, () => {
-    console.log('Servidor corriendo en puerto' + process.env.Port);
+app.listen( process.env.PORT, () => {
+    console.log('Servidor corriendo en puerto ' + process.env.PORT );
 });
+
