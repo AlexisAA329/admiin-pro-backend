@@ -30,7 +30,6 @@ const UsuarioSchema = Schema({
 });
 
 
-//Campos que no deseo mostrar en una llamada en json
 UsuarioSchema.method('toJSON', function() {
     const { __v, _id, password, ...object } = this.toObject();
     object.uid = _id;
